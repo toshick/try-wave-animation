@@ -1,20 +1,31 @@
 import * as THREE from 'three';
 
+type Option = {
+  width: number;
+  depth: number;
+  height?: number;
+  forPoint?: (x: number, y: number, z: number, i: number) => void;
+  context?: object;
+  xStep: number;
+  yStep?: number;
+  zStep: number;
+  waveOffset?: number;
+};
+
 const waveMod = (() => {
   const api: any = {};
   // Wave grid helper
-  const waveGrid = function (opt: any = {}) {
+  const waveGrid = function (opt: Option) {
     opt = opt || {};
     opt.width = opt.width || 10;
-    opt.depth = opt.depth || 10;
+    opt.depth = opt.depth || 50;
     opt.height = opt.height || 2;
     opt.forPoint = opt.forPoint || function () {};
     opt.context = opt.context || opt;
-    opt.xStep = opt.xStep || 0.025;
-    opt.yStep = opt.yStep || 0.05;
-    opt.zStep = opt.zStep || 0.025;
+    opt.xStep = opt.xStep || 0.125;
+    opt.yStep = opt.yStep || 0.04;
+    opt.zStep = opt.zStep || 0.0;
     opt.waveOffset = opt.waveOffset === undefined ? 0 : opt.waveOffset;
-    const points = [];
     let radPer,
       x = 0,
       i = 0,
@@ -44,11 +55,11 @@ const waveMod = (() => {
     }
   };
   // make a points mesh
-  api.create = function (opt) {
+  api.create = function (opt: Option) {
     opt = opt || {};
     const geometry = new THREE.BufferGeometry();
     const points: number[] = [];
-    opt.forPoint = function (x, y, z, i) {
+    opt.forPoint = function (x: number, y: number, z: number) {
       points.push(x, y, z);
     };
     waveGrid(opt);
@@ -60,8 +71,9 @@ const waveMod = (() => {
       geometry,
       // then Material
       new THREE.PointsMaterial({
-        size: 0.125,
+        size: 0.1,
         color: new THREE.Color(1.0, 0.5, 0.5),
+        // alphaMap: 0.2,
       })
     );
   };
@@ -70,7 +82,7 @@ const waveMod = (() => {
     opt = opt || {};
     const position = points.geometry.getAttribute('position');
     opt.waveOffset = per;
-    opt.forPoint = function (x, y, z, i) {
+    opt.forPoint = function (x: number, y: number, z: number, i: number) {
       position.array[i] = x - 0;
       position.array[i + 1] = y;
       position.array[i + 2] = z - 0;
@@ -102,11 +114,11 @@ const Wave = (element: HTMLElement) => {
   //-------- ----------
   // POINTS
   //-------- ----------
-  const w = 30,
-    h = 30;
-  const tw = 6,
-    th = 3;
-  const opt_waves = {
+  const w = 60;
+  const h = 80;
+  const tw = 6;
+  const th = 8;
+  const opt_waves: Option = {
     width: w,
     depth: h,
     xStep: tw / w,
@@ -118,15 +130,15 @@ const Wave = (element: HTMLElement) => {
   //-------- ----------
   // LOOP
   //-------- ----------
-  let frame = 0,
-    lt = new Date();
-  const maxFrame = 800,
-    fps = 30;
+  let frame = 0;
+  let lt = new Date();
+  const maxFrame = 800;
+  const fps = 30;
   const loop = function () {
-    const now = new Date(),
-      secs = (now - lt) / 1000,
-      per = frame / maxFrame,
-      bias = 1 - Math.abs(per - 0.5) / 0.5;
+    const now = new Date();
+    const secs = (now.getTime() - lt.getTime()) / 1000;
+    const per = frame / maxFrame;
+    const bias = 1 - Math.abs(per - 0.5) / 0.5;
     requestAnimationFrame(loop);
     if (secs > 1 / fps) {
       // calling update method
