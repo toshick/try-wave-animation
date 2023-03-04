@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Points } from 'three';
 
 type Option = {
   width: number;
@@ -55,7 +56,7 @@ const waveMod = (() => {
     }
   };
   // make a points mesh
-  api.create = function (opt: Option) {
+  api.create = function (opt: Option): Points {
     opt = opt || {};
     const geometry = new THREE.BufferGeometry();
     const points: number[] = [];
@@ -71,21 +72,24 @@ const waveMod = (() => {
       geometry,
       // then Material
       new THREE.PointsMaterial({
-        size: 0.1,
+        size: 0.3,
         color: new THREE.Color(1.0, 0.5, 0.5),
-        // alphaMap: 0.2,
+        opacity: 1,
+        transparent: true,
       })
     );
   };
   // update points
-  api.update = function (points, per, opt) {
+  api.update = function (points: Points, per: number, opt: Option) {
     opt = opt || {};
     const position = points.geometry.getAttribute('position');
     opt.waveOffset = per;
     opt.forPoint = function (x: number, y: number, z: number, i: number) {
-      position.array[i] = x - 0;
+      position.array[i] = x;
       position.array[i + 1] = y;
-      position.array[i + 2] = z - 0;
+      position.array[i + 2] = z;
+
+      // position.array[i].alpha = 0.2;
     };
     // update points
     waveGrid(opt);
@@ -101,12 +105,12 @@ const Wave = (element: HTMLElement) => {
   const scene = new THREE.Scene();
   // scene.add(new THREE.GridHelper(10, 10));
   const camera = new THREE.PerspectiveCamera(
-    10,
+    6,
     element.clientWidth / element.clientHeight,
-    0.001,
-    1000
+    0.1,
+    2000
   );
-  camera.position.set(10, 2, 0);
+  camera.position.set(-2, 2, 20);
   camera.lookAt(0, 0, 0);
   const renderer = new THREE.WebGL1Renderer({ alpha: true });
   renderer.setSize(element.clientWidth, element.clientHeight, false);
@@ -114,18 +118,18 @@ const Wave = (element: HTMLElement) => {
   //-------- ----------
   // POINTS
   //-------- ----------
-  const w = 60;
-  const h = 80;
+  const w = 120;
+  const h = 60;
   const tw = 6;
-  const th = 8;
-  const opt_waves: Option = {
+  const th = 16;
+  const optWaves: Option = {
     width: w,
     depth: h,
     xStep: tw / w,
     zStep: th / h,
   };
-  const points = waveMod.create(opt_waves);
-  points.position.set((tw / 2) * -1, 0, (th / 2) * -1);
+  const points: Points = waveMod.create(optWaves);
+  points.position.set((tw / 2) * -1, 0.5, (th / 2) * -1);
   scene.add(points);
   //-------- ----------
   // LOOP
@@ -142,7 +146,7 @@ const Wave = (element: HTMLElement) => {
     requestAnimationFrame(loop);
     if (secs > 1 / fps) {
       // calling update method
-      waveMod.update(points, (per * 8) % 1, opt_waves);
+      waveMod.update(points, (per * 4) % 1, optWaves);
       renderer.render(scene, camera);
       frame += fps * secs;
       frame %= maxFrame;

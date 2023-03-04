@@ -38,7 +38,7 @@
   }
   h1 {
     white-space: nowrap;
-    font-size: 66px;
+    font-size: 46px;
     padding: 0;
     margin: 0;
   }

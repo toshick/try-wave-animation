@@ -3,6 +3,7 @@
   import Wave from '../helper/thee-wave';
 
   const mycanvas = ref(null);
+  // const mycanvas2 = ref(null);
 
   // function initAnime(element: HTMLDivElement) {
   //   const scene = new THREE.Scene();
@@ -39,6 +40,7 @@
   onMounted(() => {
     if (mycanvas.value) {
       Wave(mycanvas.value);
+      // Wave(mycanvas2.value);
     }
   });
 </script>
@@ -46,6 +48,7 @@
 <template>
   <section>
     <div class="MyCanvas" ref="mycanvas"></div>
+    <!-- <div class="MyCanvas -second" ref="mycanvas2"></div> -->
   </section>
 </template>
 
@@ -54,5 +57,9 @@
     height: 400px;
     overflow: hidden;
     margin: 0 auto;
+  }
+  .MyCanvas.-second {
+    position: absolute;
+    top: 190px;
   }
 </style>
