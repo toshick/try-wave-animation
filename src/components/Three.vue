@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue';
   import Wave from '../helper/thee-wave';
+  import { useWindowSize } from '@vueuse/core';
+
+  const windowSize = useWindowSize();
 
   const mycanvas = ref(null);
+
   // const mycanvas2 = ref(null);
 
   // function initAnime(element: HTMLDivElement) {
@@ -39,14 +43,19 @@
 
   onMounted(() => {
     if (mycanvas.value) {
-      Wave(mycanvas.value);
-      // Wave(mycanvas2.value);
+      const { updateSize } = Wave(mycanvas.value, windowSize);
+
+      window.addEventListener('resize', () => {
+        updateSize({ width: window.innerWidth, height: window.innerHeight });
+        // updatePos(window.innerWidth);
+      });
     }
   });
 </script>
 
 <template>
   <section>
+    width {{ windowSize.width }}
     <div class="MyCanvas" ref="mycanvas"></div>
     <!-- <div class="MyCanvas -second" ref="mycanvas2"></div> -->
   </section>

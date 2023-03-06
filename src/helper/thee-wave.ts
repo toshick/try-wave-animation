@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Points } from 'three';
+import type { Points } from 'three';
 
 type Option = {
   width: number;
@@ -60,7 +60,7 @@ const waveMod = (() => {
     opt = opt || {};
     const geometry = new THREE.BufferGeometry();
     const points: number[] = [];
-    opt.forPoint = function (x: number, y: number, z: number) {
+    opt.forPoint = function (x: number, y: number, z: number, i: number) {
       points.push(x, y, z);
     };
     waveGrid(opt);
@@ -79,17 +79,19 @@ const waveMod = (() => {
       })
     );
   };
+  let debug = 0;
   // update points
   api.update = function (points: Points, per: number, opt: Option) {
     opt = opt || {};
+
     const position = points.geometry.getAttribute('position');
+    if (debug === 0) console.log('position', position);
+    debug += 1;
     opt.waveOffset = per;
     opt.forPoint = function (x: number, y: number, z: number, i: number) {
       position.array[i] = x;
       position.array[i + 1] = y;
       position.array[i + 2] = z;
-
-      // position.array[i].alpha = 0.2;
     };
     // update points
     waveGrid(opt);
@@ -154,6 +156,15 @@ const Wave = (element: HTMLElement) => {
     }
   };
   loop();
+  return {
+    updateSize: ({ width, height }: { width: number; height: number }) => {
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(width, height, false);
+      // camera
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    },
+  };
 };
 
 export default Wave;
