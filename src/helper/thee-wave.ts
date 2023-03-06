@@ -79,14 +79,11 @@ const waveMod = (() => {
       })
     );
   };
-  let debug = 0;
   // update points
   api.update = function (points: Points, per: number, opt: Option) {
     opt = opt || {};
 
-    const position = points.geometry.getAttribute('position');
-    if (debug === 0) console.log('position', position);
-    debug += 1;
+    const position = points.geometry.getAttribute('position') as any;
     opt.waveOffset = per;
     opt.forPoint = function (x: number, y: number, z: number, i: number) {
       position.array[i] = x;
